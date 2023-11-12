@@ -1,5 +1,6 @@
 # Trading system using go
 
+ - backend server
  - postgres
  - kafka
  - redis
