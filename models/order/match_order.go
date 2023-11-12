@@ -15,7 +15,6 @@ func MatchOrder(orderId string) {
 	//order type of this particular order
 	database.DB.DataBase.Where("order_id = ?", orderId).First(&order)
 	//try to match with the price.
-	///fmt.Fprintln(os.Stdout, []any{"order details order_id=%d , order_type=%s order_price=%v", order.OrderId, order.Type, order.Price}...)
 	//if the price match , remove from the orderbook & update the order status filled
 	ctx := context.Background()
 	buyOrderkey := fmt.Sprintf("buy-orders")
