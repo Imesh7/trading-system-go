@@ -1,4 +1,4 @@
-# trading-system-go
+# Trading system using go
 
 ## Running the Application
 
