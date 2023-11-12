@@ -14,8 +14,8 @@ Create a Order process in a trading system.
 
 ## Running the Application
 
-To run the application, use the following command:
-make sure you already installed docker
+To run the application, use the following command.  
+Make sure you already installed Docker.
 
 
 ```bash
