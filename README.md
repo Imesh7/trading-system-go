@@ -18,10 +18,12 @@ To run the application, use the following command:
 
 ```bash
 docker-compose up
+```
 
-## Orderbook
-
+## See Orderbook Data
 To visulalize orderbook data go to redis commander:
+If you already run the `docker-compose up` will works, browser below url
 
 ```bash
 http://localhost:8081/
+```
