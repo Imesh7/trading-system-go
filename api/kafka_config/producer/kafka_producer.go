@@ -1,4 +1,4 @@
-package order
+package order_kafka_producer
 
 import (
 	"fmt"

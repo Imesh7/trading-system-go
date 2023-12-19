@@ -1,4 +1,4 @@
-package order
+package order_book
 
 import (
 	"context"
@@ -6,14 +6,15 @@ import (
 	"fmt"
 	"strconv"
 	"trading-system-go/database"
+	"trading-system-go/internal/data/order"
 )
 
 // get latest orderbook data
-func GetOrderBook(ctx context.Context, orderType string) []Order {
-	var orderList []Order
+func GetOrderBook(ctx context.Context, orderType string) []order.Order {
+	var orderList []order.Order
 	result := database.RedisDB.Client.Keys(ctx, orderType)
 	for _, v := range result.Val() {
-		var order Order
+		var order order.Order
 		data := database.RedisDB.Client.HGetAll(ctx, v)
 		for _, v := range data.Val() {
 			json.Unmarshal([]byte(v), &order)

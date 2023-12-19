@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
+	order_kafka_consumer "trading-system-go/api/kafka_config/consumer"
 	"trading-system-go/database"
-	"trading-system-go/models/balance"
-	"trading-system-go/models/order"
-	router "trading-system-go/route"
+	"trading-system-go/internal/data/balance"
+	"trading-system-go/internal/data/order"
+	router "trading-system-go/internal/route"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,6 +19,6 @@ func main() {
 	database.ConnectToRedis()
 	database.DB.DataBase.AutoMigrate(&order.Order{}, &balance.Balance{})
 	router.AppRoutes(app)
-	go order.OrderMatchConsumer("topic")
+	go order_kafka_consumer.OrderMatchConsumer("topic")
 	log.Fatal(app.Listen(":8000"))
 }

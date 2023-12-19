@@ -24,7 +24,7 @@ var DB DBInstance
 var RedisDB RedisDBInstance
 
 func ConnectDatabase() {
-
+	
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable TimeZone=Asia/Shanghai",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),
@@ -54,7 +54,7 @@ func ConnectDatabase() {
 func ConnectToRedis()  {
 	client := redis.NewClient(&redis.Options{
         Addr:	  "redis:6379",
-        Password: "1234", // no password set
+        Password: "1234", 
         DB:		  0,  // use default DB
     })
 

@@ -1,16 +1,17 @@
-package order
+package match_order
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
+	"trading-system-go/api/order_book"
 	"trading-system-go/database"
+	order_model "trading-system-go/internal/data/order"
 )
 
 func MatchOrder(orderId string) {
-	var order Order
-	///fmt.Println("Match order got the value from kafka consumer", orderId)
+	var order order_model.Order
 	//first get the unfilled or partfilled order with opposite
 	//order type of this particular order
 	database.DB.DataBase.Where("order_id = ?", orderId).First(&order)
@@ -23,11 +24,11 @@ func MatchOrder(orderId string) {
 	if order.Type == "bid" {
 		//first try to match with the redis after that get that order & validate it &
 		//remove from the order & create a sell order against,
-		sellOrderList := GetOrderBook(ctx, sellOrderkey)
+		sellOrderList := order_book.GetOrderBook(ctx, sellOrderkey)
 
 		if len(sellOrderList) == 0 {
 			//add a new buy order to the orderbook
-			AddToOrderBook(ctx, buyOrderkey, order.OrderId, serializeOrder(order))
+			order_book.AddToOrderBook(ctx, buyOrderkey, order.OrderId, serializeOrder(order))
 		} else {
 			//sort the order with the price low to high
 			sort.SliceStable(sellOrderList, func(i, j int) bool {
@@ -49,41 +50,37 @@ func MatchOrder(orderId string) {
 						balanceVolume := v.Volume - order.Volume
 						if balanceVolume == 0 {
 							//update the orderbook in fully filled
-							v.OrderStatus = Filled
-							/* err := UpdateOrderBook(ctx, sellOrderkey, v.OrderId, serializeOrder(v))
-							if err != nil {
-								fmt.Println(err)
-								} */
+							v.OrderStatus = order_model.Filled
 							//remove item from the order book
-							errs := RemoveFromOrderBook(ctx, sellOrderkey, v.OrderId)
+							errs := order_book.RemoveFromOrderBook(ctx, sellOrderkey, v.OrderId)
 							if errs != nil {
 								fmt.Println(errs)
 							}
 						} else {
 							//update the orderbook in partially filled
-							v.OrderStatus = PartialyFilled
+							v.OrderStatus = order_model.PartialyFilled
 							v.Volume = v.Volume - order.Volume
-							UpdateOrderBook(ctx, sellOrderkey, v.OrderId, serializeOrder(v))
+							order_book.UpdateOrderBook(ctx, sellOrderkey, v.OrderId, serializeOrder(v))
 						}
 						break
 					} else {
 						//buy order should be partially filled
 						//sell fully filled
-						v.OrderStatus = Filled
+						v.OrderStatus = order_model.Filled
 						//update the orderbook in partially filled
 						/* err := UpdateOrderBook(ctx, sellOrderkey, v.OrderId, serializeOrder(v))
 						if err != nil {
 							fmt.Println(err)
 							} */
 						order.Volume = order.Volume - v.Volume
-						errs := RemoveFromOrderBook(ctx, sellOrderkey, v.OrderId)
+						errs := order_book.RemoveFromOrderBook(ctx, sellOrderkey, v.OrderId)
 						if errs != nil {
 							fmt.Println(errs)
 						}
 					}
 				} else {
 					//add a new buy order to the orderbook
-					AddToOrderBook(ctx, buyOrderkey, order.OrderId, serializeOrder(order))
+					order_book.AddToOrderBook(ctx, buyOrderkey, order.OrderId, serializeOrder(order))
 					break
 				}
 			}
@@ -91,10 +88,10 @@ func MatchOrder(orderId string) {
 	} else if order.Type == "ask" {
 		//first try to match with the redis after that get that order & validate it &
 		//remove from the order & create a sell order against,
-		buyOrderList := GetOrderBook(ctx, buyOrderkey)
+		buyOrderList := order_book.GetOrderBook(ctx, buyOrderkey)
 
 		if len(buyOrderList) == 0 {
-			AddToOrderBook(ctx, sellOrderkey, order.OrderId, serializeOrder(order))
+			order_book.AddToOrderBook(ctx, sellOrderkey, order.OrderId, serializeOrder(order))
 		} else {
 			//sort the order with the price low to high
 			sort.SliceStable(buyOrderList, func(i, j int) bool {
@@ -116,34 +113,34 @@ func MatchOrder(orderId string) {
 						balanceVolume := v.Volume - order.Volume
 						if balanceVolume == 0 {
 							//update the orderbook in fully filled
-							v.OrderStatus = Filled
+							v.OrderStatus = order_model.Filled
 							/* err := UpdateOrderBook(ctx, buyOrderkey, v.OrderId, serializeOrder(v))
 							if err != nil {
 								fmt.Println(err)
 							} */
 							//remove item from the order book
-							errs := RemoveFromOrderBook(ctx, buyOrderkey, v.OrderId)
+							errs := order_book.RemoveFromOrderBook(ctx, buyOrderkey, v.OrderId)
 							if errs != nil {
 								fmt.Println(errs)
 							}
 						} else {
 							//update the orderbook in partially filled
-							v.OrderStatus = PartialyFilled
+							v.OrderStatus = order_model.PartialyFilled
 							v.Volume = v.Volume - order.Volume
-							UpdateOrderBook(ctx, buyOrderkey, v.OrderId, serializeOrder(v))
+							order_book.UpdateOrderBook(ctx, buyOrderkey, v.OrderId, serializeOrder(v))
 						}
 						break
 					} else {
 						//buy order should be partially filled
 						//sell fully filled
-						v.OrderStatus = Filled
+						v.OrderStatus = order_model.Filled
 						//update the orderbook in partially filled
 						/* err := UpdateOrderBook(ctx, buyOrderkey, v.OrderId, serializeOrder(v))
 						if err != nil {
 							fmt.Println(err)
 						} */
 						order.Volume = order.Volume - v.Volume
-						errs := RemoveFromOrderBook(ctx, buyOrderkey, v.OrderId)
+						errs := order_book.RemoveFromOrderBook(ctx, buyOrderkey, v.OrderId)
 						if errs != nil {
 							fmt.Println(errs)
 						}
@@ -152,7 +149,7 @@ func MatchOrder(orderId string) {
 					}
 				} else {
 					//add a new buy order to the orderbook
-					AddToOrderBook(ctx, sellOrderkey, order.OrderId, serializeOrder(order))
+					order_book.AddToOrderBook(ctx, sellOrderkey, order.OrderId, serializeOrder(order))
 					break
 				}
 			}
@@ -160,7 +157,7 @@ func MatchOrder(orderId string) {
 	}
 }
 
-func serializeOrder(order Order) string {
+func serializeOrder(order order_model.Order) string {
 	data, _ := json.Marshal(order)
 	return string(data)
 }
