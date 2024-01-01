@@ -24,9 +24,13 @@ docker-compose up
 
 
 
-Create Order Api
-```json
+### Create Order Api Enpoint
+```bash
 http://localhost:8000/create-order
+```
+
+Request Body
+```json
 //create a Ask(sell) order
 {
     "user_id":1000000,
