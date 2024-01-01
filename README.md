@@ -7,10 +7,10 @@ Simulate Order process in a trading system.
 
  Tech stack used
  --------------------
- - Backend server
- - Postgres (db)
+ - Backend server - Go
  - Kafka
  - Redis (orderbook)
+ - Postgres (db)
 
 ## Running the Application
 
