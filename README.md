@@ -22,13 +22,7 @@ Make sure you already installed [Docker](https://www.docker.com/).
 docker-compose up
 ```
 
-## See Orderbook Data
-To visulalize orderbook data go to redis commander:
-If you already run the `docker-compose up` will works, browser below url to see the Orderbook
 
-```bash
-http://localhost:8081/
-```
 
 Create Order Api
 ```json
