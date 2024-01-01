@@ -1,6 +1,6 @@
 # Trading system using go
 
-Create a Order process in a trading system.
+Simulate Order process in a trading system.
  - Create a order
  - Maintain orderbook
  - Match the order with orderbook
@@ -15,7 +15,7 @@ Create a Order process in a trading system.
 ## Running the Application
 
 To run the application, use the following command.  
-Make sure you already installed Docker.
+Make sure you already installed [Docker](https://www.docker.com/).
 
 
 ```bash
@@ -24,14 +24,14 @@ docker-compose up
 
 ## See Orderbook Data
 To visulalize orderbook data go to redis commander:
-If you already run the `docker-compose up` will works, browser below url
+If you already run the `docker-compose up` will works, browser below url to see the Orderbook
 
 ```bash
 http://localhost:8081/
 ```
 
+Create Order Api
 ```json
-
 http://localhost:8000/create-order
 //create a Ask(sell) order
 {
@@ -54,8 +54,10 @@ http://localhost:8000/create-order
     "buying_pair":"usd",
     "selling_pair":"btc"
 }
+```
 
-//Get orders 
+Get orders API
+```
 http://localhost:8000/get-orders
 ```
 
