@@ -20,5 +20,6 @@ func main() {
 	database.DB.DataBase.AutoMigrate(&order.Order{}, &balance.Balance{})
 	router.AppRoutes(app)
 	go order_kafka_consumer.OrderMatchConsumer("topic")
+	go order_kafka_consumer.CreateBidConsumer("order-book")
 	log.Fatal(app.Listen(":8000"))
 }

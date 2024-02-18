@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"sort"
+	order_kafka_producer "trading-system-go/api/kafka_config/producer"
 	"trading-system-go/api/order_book"
 	"trading-system-go/database"
 	order_model "trading-system-go/internal/data/order"
@@ -28,7 +30,12 @@ func MatchOrder(orderId string) {
 
 		if len(sellOrderList) == 0 {
 			//add a new buy order to the orderbook
-			order_book.AddToOrderBook(ctx, buyOrderkey, order.OrderId, serializeOrder(order))
+			err := order_book.AddToOrderBook(ctx, buyOrderkey, order.OrderId, serializeOrder(order))
+			order_kafka_producer.CreateOrderBookProducer("order-book", order)
+			if err != nil {
+				log.Fatal(err)
+			}
+
 		} else {
 			//sort the order with the price low to high
 			sort.SliceStable(sellOrderList, func(i, j int) bool {
@@ -81,6 +88,7 @@ func MatchOrder(orderId string) {
 				} else {
 					//add a new buy order to the orderbook
 					order_book.AddToOrderBook(ctx, buyOrderkey, order.OrderId, serializeOrder(order))
+					order_kafka_producer.CreateOrderBookProducer("order-book", order)
 					break
 				}
 			}
@@ -92,6 +100,7 @@ func MatchOrder(orderId string) {
 
 		if len(buyOrderList) == 0 {
 			order_book.AddToOrderBook(ctx, sellOrderkey, order.OrderId, serializeOrder(order))
+			order_kafka_producer.CreateOrderBookProducer("order-book", order)
 		} else {
 			//sort the order with the price low to high
 			sort.SliceStable(buyOrderList, func(i, j int) bool {
@@ -150,6 +159,7 @@ func MatchOrder(orderId string) {
 				} else {
 					//add a new buy order to the orderbook
 					order_book.AddToOrderBook(ctx, sellOrderkey, order.OrderId, serializeOrder(order))
+					order_kafka_producer.CreateOrderBookProducer("order-book", order)
 					break
 				}
 			}

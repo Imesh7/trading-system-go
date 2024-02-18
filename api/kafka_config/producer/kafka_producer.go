@@ -1,6 +1,7 @@
 package order_kafka_producer
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -42,4 +43,34 @@ func OrderMatchProducer(topic string, orderId int) {
 		log.Fatal(err)
 	}
 	log.Printf("Produced message to partition %d at offset %d\n", partition, offset)
+}
+
+func CreateOrderBookProducer(topic string, order interface{}) {
+	con := sarama.NewConfig()
+	con.Producer.Return.Successes = true
+	kafkaHost := fmt.Sprintf("%s:%s", os.Getenv("KAFKA_HOST"), os.Getenv("KAFKA_PORT"))
+	producer, err := sarama.NewSyncProducer([]string{kafkaHost}, con)
+	if err != nil {
+		fmt.Println("Cannot connect to producer")
+		log.Fatal(err)
+	}
+
+	orderJson, err := json.Marshal(order)
+
+	message := &sarama.ProducerMessage{
+		Topic:     topic,
+		Key:       nil,
+		Value:     sarama.StringEncoder(orderJson),
+		Headers:   []sarama.RecordHeader{},
+		Metadata:  nil,
+		Offset:    0,
+		Partition: 0,
+		Timestamp: time.Time{},
+	}
+
+	_, _, err = producer.SendMessage(message)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
